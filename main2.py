@@ -22,11 +22,7 @@ model.add(Dense(10, activation='linear'))
 model.add(Dense(32, activation='linear'))
 model.add(Dense(2, activation='relu'))
 
-test = [[5,2,-1.7999999999999998,5,3,7.1000000000000005,10,0,-1.6999999999999997,1,1,0.09999999999999964,13,-2,-7.2,-1,18,-7,-4.000000000000001,-15,-2,-0.7000000000000002,-6,-2,-2.1,-6,0,4.4,-1,-1,-4.7,-15]]
-test = preprocessing.MinMaxScaler().fit_transform(x)
-
-
 model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])
 
-model.fit(x_train, y_train, batch_size=64, epochs=15, validation_data=(x_val, y_val))
-keras.utils.plot_model(model, "multi_input_and_output_model.png")
+model.fit(x_train, y_train, batch_size=1, epochs=10, validation_data=(x_val, y_val))
+#keras.utils.plot_model(model, "multi_input_and_output_model.png")
