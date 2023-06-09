@@ -19,7 +19,7 @@ def query(sql_order):
 
 def insert_csv(rows):
     #diff, xdiff, tdiff x10
-    with open('data\\train_data.csv', 'w', newline='') as file:
+    with open('data\\train_data_eng.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         field = [
             "th", # 1 in
@@ -68,10 +68,10 @@ def get_last_five_games(game):
     homeGames = []
     awayGames = []
     for i in [1,2,3,4,5]:
-        q = query(f'SELECT * FROM Bundesliga WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{home_team}" OR AwayTeam = "{home_team}")')
+        q = query(f'SELECT * FROM England WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{home_team}" OR AwayTeam = "{home_team}")')
         homeGames.append(json.loads(q.text)[0])
 
-        q = query(f'SELECT * FROM Bundesliga WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{away_team}" OR AwayTeam = "{away_team}")')
+        q = query(f'SELECT * FROM England WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{away_team}" OR AwayTeam = "{away_team}")')
         awayGames.append(json.loads(q.text)[0])
 
     return homeGames, awayGames
@@ -134,7 +134,7 @@ def create_row(game, homeGames, awayGames):
     return row
 
 #main start
-q = query('SELECT * FROM Bundesliga WHERE Spieltag')
+q = query('SELECT * FROM England WHERE Spieltag')
 data = json.loads(q.text)
 
 rows = []
@@ -150,6 +150,6 @@ for game in data:
     rows.append(row)
 
     #if int(game['Spieltag']) > 10:
-    #    break
+        #break
 
 insert_csv(rows)
