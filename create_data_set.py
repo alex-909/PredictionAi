@@ -4,11 +4,6 @@ import urllib.parse
 import json
 import csv
 
-
-
-
-
-
 url = "https://proxy.cnp-predictions.de/query2.php?sql="
 
 def query(sql_order):
@@ -17,9 +12,9 @@ def query(sql_order):
     r = requests.get(url + sql_order)
     return r
 
-def insert_csv(rows):
+def insert_csv(rows, path):
     #diff, xdiff, tdiff x10
-    with open('data\\train_data_eng.csv', 'w', newline='') as file:
+    with open(path, 'w', newline='') as file:
         writer = csv.writer(file)
         field = [
             "th", # 1 in
@@ -38,11 +33,10 @@ def insert_csv(rows):
             "diffa4", "xdiffa4", "tdiffa4",
             "diffa5", "xdiffa5", "tdiffa5",
 
-            "hs", #2 out
-            "as"
+            "diff" # hs - as
             ]
         # => 32 in
-        # => 2  out 
+        # => 1  out 
 
         writer.writerow(field)
         #print(rows)
@@ -54,7 +48,7 @@ def get_xg(s, sot, c): #shots, shotsontarget, woodwork, corners
     sot = int(sot)
     c = int(c)
 
-    xg = 0.5*sot + 0.3*c + 0.2*(s-sot)
+    xg = 0.5*sot + 0.25*c + 0.25*(s-sot)
     return xg
 
 def get_last_five_games(game):
@@ -68,10 +62,10 @@ def get_last_five_games(game):
     homeGames = []
     awayGames = []
     for i in [1,2,3,4,5]:
-        q = query(f'SELECT * FROM England WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{home_team}" OR AwayTeam = "{home_team}")')
+        q = query(f'SELECT * FROM Bundesliga WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{home_team}" OR AwayTeam = "{home_team}")')
         homeGames.append(json.loads(q.text)[0])
 
-        q = query(f'SELECT * FROM England WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{away_team}" OR AwayTeam = "{away_team}")')
+        q = query(f'SELECT * FROM Bundesliga WHERE Saison = "{saison}" AND Spieltag = {str(spieltag-i)} AND (HomeTeam="{away_team}" OR AwayTeam = "{away_team}")')
         awayGames.append(json.loads(q.text)[0])
 
     return homeGames, awayGames
@@ -127,14 +121,17 @@ def create_row(game, homeGames, awayGames):
             tdiffa  = -tdiffa
 
         row += [diffa, xdiffa, tdiffa]
+    
+    hg = game['FTHG'] #hs homescore
+    ag = game['FTAG'] #as awayscore
 
-    row.append(game['FTHG']) #hs homescore
-    row.append(game['FTAG']) #as awayscore
+    diff = int(hg) - int(ag)
+    row.append(diff)
 
     return row
 
 #main start
-q = query('SELECT * FROM England WHERE Spieltag')
+q = query('SELECT * FROM Bundesliga')
 data = json.loads(q.text)
 
 rows = []
@@ -152,4 +149,5 @@ for game in data:
     #if int(game['Spieltag']) > 10:
         #break
 
-insert_csv(rows)
+path = 'data\\train_data_3.csv'
+insert_csv(rows, path)

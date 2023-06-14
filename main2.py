@@ -122,8 +122,9 @@ output = Dense(1, activation='linear')(merged)
 model = Model(inputs=input_arr, outputs=output)
 
 # endregion 
-test = [[5,-1,5.899999999999999,11,3,6.500000000000001,6,-1,2.7,-2,1,-0.5,1,3,3.8000000000000003,2,9,0,-0.5,-2,0,-0.5999999999999996,7,1,3.200000000000001,8,4,3.0000000000000004,-1,1,-0.7000000000000002,-4]]
-test = preprocessing.MinMaxScaler().fit_transform(x)
+
+#test = [[5,-1,5.899999999999999,11,3,6.500000000000001,6,-1,2.7,-2,1,-0.5,1,3,3.8000000000000003,2,9,0,-0.5,-2,0,-0.5999999999999996,7,1,3.200000000000001,8,4,3.0000000000000004,-1,1,-0.7000000000000002,-4]]
+#test = preprocessing.MinMaxScaler().fit_transform(x)
 
 
 model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])

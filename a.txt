@@ -1,0 +1,4 @@
+- je 3 inputs für ein spiel als eine variable zusammenfassen
+- im notfall auch alle 5
+
+- heim/auswärtstabellenplatz statt allgemeiner tabellenplatz
