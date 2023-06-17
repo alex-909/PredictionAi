@@ -8,7 +8,7 @@ from keras.layers import Concatenate, Dense, Input
 import keras
 import graphviz
 
-df = pd.read_csv('data\\train_data.csv')
+df = pd.read_csv('data\\train_data_bl.csv')
 
 x = df.iloc[:, 0:32]
 y = df.iloc[:, 32:33]
@@ -129,8 +129,8 @@ model = Model(inputs=input_arr, outputs=output)
 
 model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])
 
-model.fit(x_train_arr, y_train, batch_size=64, epochs=15, validation_data=(x_val_arr, y_val))
-keras.utils.plot_model(model, "multi_input_and_output_model.png")
+model.fit(x_train_arr, y_train, batch_size=32, epochs=25, validation_data=(x_val_arr, y_val))
+keras.utils.plot_model(model, "out/structure.png")
 
 """
 tensors = model(test, training=False)
