@@ -52,94 +52,100 @@ def test_model(model):
             if(output_data[i] == prediction):
                 correct_diff += 1
 
-    print(f"tendency : {correct_tendency}/{count} ||| diff : {correct_diff}/{count}")
+    print(f"tendency : {correct_tendency}/{count} ||| {100 * correct_tendency / count} %")
+    print(f"diff : {correct_diff}/{count} ||| {100 * correct_diff / count} %")
         
 
-df = pd.read_csv(path)
+def create_model():
+    df = pd.read_csv(path)
 
-x = df.iloc[:, 0:12]
-y = df.iloc[:, 12]
+    x = df.iloc[:, 0:12]
+    y = df.iloc[:, 12]
 
-x = preprocessing.MinMaxScaler().fit_transform(x)
+    x = preprocessing.MinMaxScaler().fit_transform(x)
 
-x_train, x_val, y_train, y_val = train_test_split(x,y, test_size=0.3)
+    x_train, x_val, y_train, y_val = train_test_split(x,y, test_size=0.3)
 
-# region arrays
+    # region arrays
 
-input_th = Input(shape=(1,))
-input_lh = Input(shape=(5,))
+    input_th = Input(shape=(1,))
+    input_lh = Input(shape=(5,))
 
-input_ta = Input(shape=(1,))
-input_la = Input(shape=(5,))
+    input_ta = Input(shape=(1,))
+    input_la = Input(shape=(5,))
 
-input_arr = [
-    input_th,
-    input_lh,
-    input_ta, 
-    input_la
-]
+    input_arr = [
+        input_th,
+        input_lh,
+        input_ta, 
+        input_la
+    ]
 
-x_train_th = x_train[:, 0]
-x_train_lh = x_train[:, 1:6]
+    x_train_th = x_train[:, 0]
+    x_train_lh = x_train[:, 1:6]
 
-x_train_ta = x_train[:, 6]
-x_train_la = x_train[:, 7:12]
-#add train/val/input arrays
-x_train_arr = [
-    x_train_th,    
-    x_train_lh,
-    x_train_ta,
-    x_train_la
-]
+    x_train_ta = x_train[:, 6]
+    x_train_la = x_train[:, 7:12]
+    #add train/val/input arrays
+    x_train_arr = [
+        x_train_th,    
+        x_train_lh,
+        x_train_ta,
+        x_train_la
+    ]
 
-x_val_th = x_val[:, 0]
-x_val_lh = x_val[:, 1:6]
+    x_val_th = x_val[:, 0]
+    x_val_lh = x_val[:, 1:6]
 
-x_val_ta = x_val[:, 6]
-x_val_la = x_val[:, 7:12]
+    x_val_ta = x_val[:, 6]
+    x_val_la = x_val[:, 7:12]
 
-x_val_arr = [
-    x_val_th,    
-    x_val_lh,
-    x_val_ta,
-    x_val_la
-]
+    x_val_arr = [
+        x_val_th,    
+        x_val_lh,
+        x_val_ta,
+        x_val_la
+    ]
 
-# endregion
+    # endregion
 
-# region model
+    # region model
 
-npg = 4     #   how many neurons per team performance?
+    npg = 4     #   how many neurons per team performance?
 
-lh = Dense(npg, activation='linear')(input_lh)
-la = Dense(npg, activation='linear')(input_la)
-lh = Dense(1, activation='linear')(lh)
-la = Dense(1, activation='linear')(la)
+    lh = Dense(npg, activation='linear')(input_lh)
+    la = Dense(npg, activation='linear')(input_la)
+    lh = Dense(1, activation='linear')(lh)
+    la = Dense(1, activation='linear')(la)
 
-# Merge the processed game data in one layer?
-merged1 = Concatenate()([input_th, input_ta])
-merged2 = Concatenate()([lh, la])
+    # Merge the processed game data in one layer?
+    merged1 = Concatenate()([input_th, input_ta])
+    merged2 = Concatenate()([lh, la])
 
-merged1 = Dense(2, activation='linear')(merged1)
-merged2 = Dense(2, activation='linear')(merged2)
+    merged1 = Dense(2, activation='linear')(merged1)
+    merged2 = Dense(2, activation='linear')(merged2)
 
-merge = Concatenate()([merged1, merged2])
-merge = Dense(4, activation='linear')(merge)
-merge = Dense(2, activation='linear')(merge)
-output = Dense(1, activation='linear')(merge)
+    merge = Concatenate()([merged1, merged2])
+    merge = Dense(4, activation='linear')(merge)
+    merge = Dense(2, activation='linear')(merge)
+    output = Dense(1, activation='linear')(merge)
 
-# Erstellen des Modells
-model = Model(inputs=input_arr, outputs=output)
+    # Erstellen des Modells
+    model = Model(inputs=input_arr, outputs=output)
 
-# endregion 
+    # endregion 
 
-#test = [[5,-1,5.899999999999999,11,3,6.500000000000001,6,-1,2.7,-2,1,-0.5,1,3,3.8000000000000003,2,9,0,-0.5,-2,0,-0.5999999999999996,7,1,3.200000000000001,8,4,3.0000000000000004,-1,1,-0.7000000000000002,-4]]
-#test = preprocessing.MinMaxScaler().fit_transform(x)
+    #test = [[5,-1,5.899999999999999,11,3,6.500000000000001,6,-1,2.7,-2,1,-0.5,1,3,3.8000000000000003,2,9,0,-0.5,-2,0,-0.5999999999999996,7,1,3.200000000000001,8,4,3.0000000000000004,-1,1,-0.7000000000000002,-4]]
+    #test = preprocessing.MinMaxScaler().fit_transform(x)
 
 
-model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])
+    model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])
 
-model.fit(x_train_arr, y_train, batch_size=16, epochs=280, validation_data=(x_val_arr, y_val))
-model.save("cnp_4.h5")
+    model.fit(x_train_arr, y_train, batch_size=8, epochs=300, validation_data=(x_val_arr, y_val))
+
+    model.save("cnp_5.h5")
+
+create_model()
+model = tf.keras.models.load_model("cnp_5.h5")
 test_model(model)
-keras.utils.plot_model(model, "out/structure.png")
+#keras.utils.plot_model(model, "out/structure.png")
