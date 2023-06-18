@@ -14,11 +14,7 @@ path = 'data\\train_data_edit.csv'
 
 def test_model(model):
     # Read the CSV file
-    data = pd.read_csv("data\\test.csv")
-
-    # Randomly select 10 rows
-    #random_indices = random.sample(range(1, len(data)), k=10)
-    selected_data = data #.iloc[random_indices]
+    data = pd.read_csv("data\\train_data_edit.csv")
 
     # Select the input columns for scaling
     input_columns = ['th', 'lh1', 'lh2', 'lh3', 'lh4', 'lh5', 'ta', 'la1', 'la2', 'la3', 'la4', 'la5']
@@ -26,8 +22,8 @@ def test_model(model):
 
 
     # Extract the input data for selected rows
-    input_data = selected_data[input_columns].values
-    output_data = selected_data[output_column].values
+    input_data = data[input_columns].values
+    output_data = data[output_column].values
 
     # Apply min-max scaling
     scaler = MinMaxScaler()
@@ -37,8 +33,27 @@ def test_model(model):
     predictions = model.predict([scaled_input_data[:, 0:1], scaled_input_data[:, 1:6], scaled_input_data[:, 6:7], scaled_input_data[:, 7:12]])
 
     # Print the predictions
+
+    correct_diff = 0
+    correct_tendency = 0
+    count = 0
     for i, prediction in enumerate(predictions):
-        print(f"Prediction for row {i+1}: {prediction} | real : {output_data[i]}")
+        prediction = prediction[0]
+        count += 1
+        if(prediction < 0.4 and prediction > -0.4):
+            prediction = 0
+        prediction = round(prediction)
+
+        if(prediction == 0 and output_data[i] == 0):
+            correct_diff += 1
+            correct_tendency += 1
+        elif(output_data[i] * prediction > 0):
+            correct_tendency += 1
+            if(output_data[i] == prediction):
+                correct_diff += 1
+
+    print(f"tendency : {correct_tendency}/{count} ||| diff : {correct_diff}/{count}")
+        
 
 df = pd.read_csv(path)
 
@@ -125,5 +140,6 @@ model = Model(inputs=input_arr, outputs=output)
 model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])
 
 model.fit(x_train_arr, y_train, batch_size=16, epochs=280, validation_data=(x_val_arr, y_val))
+model.save("cnp_4.h5")
 test_model(model)
 keras.utils.plot_model(model, "out/structure.png")
