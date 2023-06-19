@@ -55,7 +55,6 @@ def test_model(model):
     print(f"tendency : {correct_tendency}/{count} ||| {100 * correct_tendency / count} %")
     print(f"diff : {correct_diff}/{count} ||| {100 * correct_diff / count} %")
         
-
 def create_model():
     df = pd.read_csv(path)
 
@@ -112,40 +111,47 @@ def create_model():
     # region model
 
     npg = 4     #   how many neurons per team performance?
+    function = 'linear'
 
-    lh = Dense(npg, activation='linear')(input_lh)
-    la = Dense(npg, activation='linear')(input_la)
-    lh = Dense(1, activation='linear')(lh)
-    la = Dense(1, activation='linear')(la)
+    lh = Dense(npg, activation=function)(input_lh)
+    la = Dense(npg, activation=function)(input_la)
+    lh = Dense(1, activation=function)(lh)
+    la = Dense(1, activation=function)(la)
 
     # Merge the processed game data in one layer?
     merged1 = Concatenate()([input_th, input_ta])
     merged2 = Concatenate()([lh, la])
 
-    merged1 = Dense(2, activation='linear')(merged1)
-    merged2 = Dense(2, activation='linear')(merged2)
+    merged1 = Dense(2, activation=function)(merged1)
+    merged2 = Dense(2, activation=function)(merged2)
 
     merge = Concatenate()([merged1, merged2])
-    merge = Dense(4, activation='linear')(merge)
-    merge = Dense(2, activation='linear')(merge)
-    output = Dense(1, activation='linear')(merge)
+    merge = Dense(4, activation=function)(merge)
+    merge = Dense(2, activation=function)(merge)
+    output = Dense(1, activation=function)(merge)
 
     # Erstellen des Modells
     model = Model(inputs=input_arr, outputs=output)
 
     # endregion 
 
-    #test = [[5,-1,5.899999999999999,11,3,6.500000000000001,6,-1,2.7,-2,1,-0.5,1,3,3.8000000000000003,2,9,0,-0.5,-2,0,-0.5999999999999996,7,1,3.200000000000001,8,4,3.0000000000000004,-1,1,-0.7000000000000002,-4]]
-    #test = preprocessing.MinMaxScaler().fit_transform(x)
-
-
     model.compile(optimizer='adam', loss='mse', metrics = ['accuracy'])
 
-    model.fit(x_train_arr, y_train, batch_size=8, epochs=300, validation_data=(x_val_arr, y_val))
+    model.fit(x_train_arr, y_train, batch_size=16, epochs=300, validation_data=(x_val_arr, y_val))
 
-    model.save("cnp_5.h5")
+    return model
 
-create_model()
-model = tf.keras.models.load_model("cnp_5.h5")
+# create_model()
+model = create_model()
+
+# safe model
+model.save("cnp_6.h5")
+
+# load model
+model = tf.keras.models.load_model("cnp_linear.h5")
+
+# test model
 test_model(model)
+
+# print structure od the model
 #keras.utils.plot_model(model, "out/structure.png")
